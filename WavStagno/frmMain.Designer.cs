@@ -32,10 +32,14 @@
             this.txtFilePath = new System.Windows.Forms.TextBox();
             this.btnBrowse = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
-            this.txtMessage = new System.Windows.Forms.TextBox();
             this.btnHide = new System.Windows.Forms.Button();
             this.btnExtract = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
+            this.dlgBrowseFile = new System.Windows.Forms.OpenFileDialog();
+            this.dlgSaveFile = new System.Windows.Forms.SaveFileDialog();
+            this.lblMessageLength = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.txtMessage = new System.Windows.Forms.RichTextBox();
             this.SuspendLayout();
             // 
             // label1
@@ -62,9 +66,10 @@
             this.btnBrowse.Location = new System.Drawing.Point(355, 37);
             this.btnBrowse.Name = "btnBrowse";
             this.btnBrowse.Size = new System.Drawing.Size(75, 25);
-            this.btnBrowse.TabIndex = 2;
+            this.btnBrowse.TabIndex = 1;
             this.btnBrowse.Text = "Browse";
             this.btnBrowse.UseVisualStyleBackColor = true;
+            this.btnBrowse.Click += new System.EventHandler(this.btnBrowse_Click);
             // 
             // label2
             // 
@@ -76,54 +81,96 @@
             this.label2.TabIndex = 3;
             this.label2.Text = "Message";
             // 
-            // txtMessage
-            // 
-            this.txtMessage.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtMessage.Location = new System.Drawing.Point(119, 80);
-            this.txtMessage.Multiline = true;
-            this.txtMessage.Name = "txtMessage";
-            this.txtMessage.Size = new System.Drawing.Size(311, 117);
-            this.txtMessage.TabIndex = 4;
-            // 
             // btnHide
             // 
+            this.btnHide.Enabled = false;
             this.btnHide.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnHide.Location = new System.Drawing.Point(355, 203);
+            this.btnHide.Location = new System.Drawing.Point(355, 226);
             this.btnHide.Name = "btnHide";
             this.btnHide.Size = new System.Drawing.Size(75, 25);
-            this.btnHide.TabIndex = 5;
+            this.btnHide.TabIndex = 4;
             this.btnHide.Text = "Hide";
             this.btnHide.UseVisualStyleBackColor = true;
+            this.btnHide.Click += new System.EventHandler(this.btnHide_Click);
             // 
             // btnExtract
             // 
+            this.btnExtract.Enabled = false;
             this.btnExtract.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExtract.Location = new System.Drawing.Point(274, 203);
+            this.btnExtract.Location = new System.Drawing.Point(274, 226);
             this.btnExtract.Name = "btnExtract";
             this.btnExtract.Size = new System.Drawing.Size(75, 25);
-            this.btnExtract.TabIndex = 6;
+            this.btnExtract.TabIndex = 3;
             this.btnExtract.Text = "Extract";
             this.btnExtract.UseVisualStyleBackColor = true;
+            this.btnExtract.Click += new System.EventHandler(this.btnExtract_Click);
             // 
             // btnClear
             // 
             this.btnClear.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnClear.Location = new System.Drawing.Point(119, 203);
+            this.btnClear.Location = new System.Drawing.Point(119, 226);
             this.btnClear.Name = "btnClear";
             this.btnClear.Size = new System.Drawing.Size(75, 25);
-            this.btnClear.TabIndex = 7;
+            this.btnClear.TabIndex = 5;
             this.btnClear.Text = "Clear";
             this.btnClear.UseVisualStyleBackColor = true;
+            this.btnClear.Click += new System.EventHandler(this.btnClear_Click);
+            // 
+            // dlgBrowseFile
+            // 
+            this.dlgBrowseFile.FileName = "*.wav";
+            this.dlgBrowseFile.Filter = "Wave Audio | *.wav";
+            this.dlgBrowseFile.Title = "Choose File to Hide Message";
+            this.dlgBrowseFile.FileOk += new System.ComponentModel.CancelEventHandler(this.dlgBrowseFile_FileOk);
+            // 
+            // dlgSaveFile
+            // 
+            this.dlgSaveFile.DefaultExt = "*.wav";
+            this.dlgSaveFile.FileName = "File1";
+            this.dlgSaveFile.Filter = "Wave Audio | *.wav";
+            this.dlgSaveFile.Title = "Save File";
+            this.dlgSaveFile.FileOk += new System.ComponentModel.CancelEventHandler(this.dlgSaveFile_FileOk);
+            // 
+            // lblMessageLength
+            // 
+            this.lblMessageLength.AutoSize = true;
+            this.lblMessageLength.Location = new System.Drawing.Point(212, 200);
+            this.lblMessageLength.Name = "lblMessageLength";
+            this.lblMessageLength.Size = new System.Drawing.Size(13, 13);
+            this.lblMessageLength.TabIndex = 8;
+            this.lblMessageLength.Text = "0";
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(116, 200);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(90, 13);
+            this.label3.TabIndex = 9;
+            this.label3.Text = "No. of Characters";
+            // 
+            // txtMessage
+            // 
+            this.txtMessage.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.txtMessage.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtMessage.Location = new System.Drawing.Point(119, 81);
+            this.txtMessage.Name = "txtMessage";
+            this.txtMessage.Size = new System.Drawing.Size(311, 117);
+            this.txtMessage.TabIndex = 2;
+            this.txtMessage.Text = "";
+            this.txtMessage.TextChanged += new System.EventHandler(this.txtMessage_TextChanged);
             // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(480, 257);
+            this.ClientSize = new System.Drawing.Size(480, 276);
+            this.Controls.Add(this.txtMessage);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.lblMessageLength);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.btnExtract);
             this.Controls.Add(this.btnHide);
-            this.Controls.Add(this.txtMessage);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.btnBrowse);
             this.Controls.Add(this.txtFilePath);
@@ -143,10 +190,14 @@
         private System.Windows.Forms.TextBox txtFilePath;
         private System.Windows.Forms.Button btnBrowse;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.TextBox txtMessage;
         private System.Windows.Forms.Button btnHide;
         private System.Windows.Forms.Button btnExtract;
         private System.Windows.Forms.Button btnClear;
+        private System.Windows.Forms.OpenFileDialog dlgBrowseFile;
+        private System.Windows.Forms.SaveFileDialog dlgSaveFile;
+        private System.Windows.Forms.Label lblMessageLength;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.RichTextBox txtMessage;
     }
 }
 
