@@ -62,6 +62,8 @@ namespace WavStagno
                 this.dataID = br.ReadBytes(4);
                 this.dataSize = br.ReadUInt32();
 
+                this.leftStream = new List<short>();
+                this.rightStream = new List<short>();
                 for (int i = 0; i < this.dataSize / this.blockSize; i++)
                 {
                     leftStream.Add((short)br.ReadUInt16());
