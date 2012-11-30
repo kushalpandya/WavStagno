@@ -17,6 +17,7 @@ namespace WavStagno
     {
         private WaveAudio file;
         private StagnoHelper sh;
+        private string message;
 
         public frmMain()
         {
@@ -42,10 +43,8 @@ namespace WavStagno
 
         private void btnExtract_Click(object sender, EventArgs e)
         {
-            string message = "";
-            new Thread(() => {
-                message = sh.ExtractMessage();
-            }).Start();
+            message = "";
+            message = sh.ExtractMessage();
             txtMessage.Text = message;
         }
 
@@ -56,16 +55,15 @@ namespace WavStagno
 
         private void btnHide_Click(object sender, EventArgs e)
         {
-            string message = txtMessage.Text.Trim();
+            message = txtMessage.Text.Trim();
             if (message == "")
-                MessageBox.Show(this, "Write Message to Hide!", "WavStagno 1.0",MessageBoxButtons.OK,MessageBoxIcon.Exclamation);
+                MessageBox.Show(this, "Write Message to Hide!", "WavStagno 1.0", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
             else
             {
-                new Thread(() =>
-                {
-                    sh.HideMessage(message);
-                    dlgSaveFile.ShowDialog();
-                }).Start();
+                btnHide.Enabled = false;
+                btnExtract.Enabled = false;
+                this.Cursor = Cursors.WaitCursor;
+                comWorker.RunWorkerAsync();
             }
         }
 
@@ -79,6 +77,19 @@ namespace WavStagno
         private void txtMessage_TextChanged(object sender, EventArgs e)
         {
             lblMessageLength.Text = txtMessage.TextLength.ToString();            
+        }
+
+        private void comWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            sh.HideMessage(message);
+        }
+
+        private void comWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            btnHide.Enabled = true;
+            btnExtract.Enabled = true;
+            this.Cursor = Cursors.Default;
+            dlgSaveFile.ShowDialog();
         }
     }
 }
