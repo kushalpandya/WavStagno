@@ -40,6 +40,7 @@
             this.lblMessageLength = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.txtMessage = new System.Windows.Forms.RichTextBox();
+            this.comWorker = new System.ComponentModel.BackgroundWorker();
             this.SuspendLayout();
             // 
             // label1
@@ -160,6 +161,11 @@
             this.txtMessage.Text = "";
             this.txtMessage.TextChanged += new System.EventHandler(this.txtMessage_TextChanged);
             // 
+            // comWorker
+            // 
+            this.comWorker.DoWork += new System.ComponentModel.DoWorkEventHandler(this.comWorker_DoWork);
+            this.comWorker.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.comWorker_RunWorkerCompleted);
+            // 
             // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -198,6 +204,7 @@
         private System.Windows.Forms.Label lblMessageLength;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.RichTextBox txtMessage;
+        private System.ComponentModel.BackgroundWorker comWorker;
     }
 }
 
