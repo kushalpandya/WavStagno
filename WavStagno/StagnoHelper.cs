@@ -43,7 +43,6 @@ namespace WavStagno
             diff = bufferLength / (channelLength * 2);
             leftStream[0] = (short) (bufferLength / 65535);
             rightStream[0] = (short) (bufferLength % 65535);
-            Console.WriteLine("length  "+bufferLength+"  chnl le   "+ channelLength);
             for (int i = 1; i < leftStream.Count; i++)
             {
                 if (i < leftStream.Count)
