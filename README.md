@@ -13,7 +13,7 @@ Following is the standard structure of WAVE Audio format, from which `WavAudio` 
 The `StagnoHelper` class uses `WaveAudio` object and stores message stream (using its `HideMessage` method) into its channel streams starting from the last bit of every 8 bit block of the entire audio channel stream (both left and right), where the first element of the stream contains the quotient and remainder of the message length after dividing it with 65535 (upper limit of `short` data-type), and remaining elements contain actual message data. Refer to `HideMessage` method of [StagnoHelper](https://github.com/kushalpandya/WavStagno/blob/master/WavStagno/StagnoHelper.cs) class.
 
 ### Extract the Message from Audio Stream Channels.
-The channel streams extracted from `WaveAudio` object are then tranversed in `ExtractMessage` method of `StagnoHelper` and whole hiding process reversed and original message is recovered. Refer to `ExtractMessage` method of [StagnoHelper](https://github.com/kushalpandya/WavStagno/blob/master/WavStagno/StagnoHelper.cs) class.
+The channel streams extracted from `WaveAudio` object are then traversed in `ExtractMessage` method of `StagnoHelper` and whole hiding process reversed and original message is recovered. Refer to `ExtractMessage` method of [StagnoHelper](https://github.com/kushalpandya/WavStagno/blob/master/WavStagno/StagnoHelper.cs) class.
 
 
 ## Platforms, Tools and Technologies used
