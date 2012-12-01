@@ -32,30 +32,34 @@ namespace WavStagno
         /// <param name="message">String Message to be hidden.</param>
         public void HideMessage(string message)
         {
+            /*Cache audio channel streams locally from WaveAudio object*/
             List<short> leftStream = file.GetLeftStream();
             List<short> rightStream = file.GetRightStream();
 
-            //Hide Message in Streams and call file.UpdateStreams(leftStream, rightStream)
-            byte[] bufferMessage = System.Text.Encoding.UTF8.GetBytes(message);
+            /*Hide Message in Streams*/
+            byte[] bufferMessage = System.Text.Encoding.UTF8.GetBytes(message); //Convert string Message into byte[]
             short tempBit;
-            int bufferIndex = 0, bufferLength = bufferMessage.Length, channelLength, diff;
-            channelLength = leftStream.Count;
-            diff = (int) Math.Ceiling((double) bufferLength / (channelLength * 2));
-            leftStream[0] = (short) (bufferLength / 65535);
-            rightStream[0] = (short) (bufferLength % 65535);
-            for (int i = 1; i < leftStream.Count; i++)
+            int bufferIndex = 0; //Set message stream index counter.
+            int bufferLength = bufferMessage.Length; //Get length of message stream.
+            int channelLength = leftStream.Count; //Get length of audio stream (both left and right streams have same length).
+            int storageBlock = (int) Math.Ceiling((double) bufferLength / (channelLength * 2)); //Get storage block range based of length of audio channel stream and message stream.
+
+            /*Store message length info in first elements of left and right streams*/
+            leftStream[0] = (short)(bufferLength / 65535); //Store quotient of actual size in first element of audio stream.
+            rightStream[0] = (short)(bufferLength % 65535); //Store Semainder of actual size in first element of audio stream.
+            for (int i = 1; i < leftStream.Count; i++) //Iterate over length of audio channel stream, skip first element since it contains message length, store message bits into left and right audio streams.
             {
-                if (i < leftStream.Count)
+                if (i < leftStream.Count) //Check if storing has not exceeded audio stream length.
                 {
-                    if (bufferIndex < bufferLength && i % 8 > 7 - diff && i % 8 <= 7)
+                    if (bufferIndex < bufferLength && i % 8 > 7 - storageBlock && i % 8 <= 7) //Condition to target elements from the last position of every 8 bit block of audio stream (calculated based on storageBlock).
                     {
-                        tempBit = (short)bufferMessage[bufferIndex++];
-                        leftStream.Insert(i, tempBit);
+                        tempBit = (short)bufferMessage[bufferIndex++]; //Get message bit
+                        leftStream.Insert(i, tempBit); //Replace audio data bit with message bit.
                     }
                 }
                 if (i < rightStream.Count)
                 {
-                    if (bufferIndex < bufferLength && i % 8 > 7 - diff && i % 8 <= 7)
+                    if (bufferIndex < bufferLength && i % 8 > 7 - storageBlock && i % 8 <= 7)
                     {
                         tempBit = (short)bufferMessage[bufferIndex++];
                         rightStream.Insert(i, tempBit);
@@ -63,7 +67,7 @@ namespace WavStagno
                 }
             }
 
-            file.UpdateStreams(leftStream, rightStream);
+            file.UpdateStreams(leftStream, rightStream); //Streams now have message hidden in it, update streams to actual WaveAudio object.
         }
 
         /// <summary>
@@ -72,27 +76,30 @@ namespace WavStagno
         /// <returns>String representing Extracted Message.</returns>
         public string ExtractMessage()
         {
+            /*Cache audio channel streams locally from WaveAudio object*/
             List<short> leftStream = file.GetLeftStream();
             List<short> rightStream = file.GetRightStream();
 
-            //Extract Message from Streams and Return it.
-            int bufferIndex = 0, bufferLength = leftStream[0], channelLength = rightStream[0], diff;
+            /*Extract Message from Streams and Return it.*/
+            int bufferIndex = 0; //Set message stream index counter.
+            int bufferLength = leftStream[0]; //Get stored Quotient to compute message length.
+            int channelLength = leftStream.Count; //Get audio channel length.
             
-            bufferLength = 65535 * bufferLength + channelLength;
-            channelLength = leftStream.Count;
-            diff = (int)Math.Ceiling((double)bufferLength / (channelLength * 2));
+            bufferLength = 65535 * bufferLength + channelLength; //Compute original message length from remaider and quotient obtained from audio streams.
+            int storageBlock = (int)Math.Ceiling((double)bufferLength / (channelLength * 2)); //Get original storage block range used based and audio stream length and message length.
 
-            byte[] bufferMessage = new byte[bufferLength + 1];
-            for (int i = 0; i < leftStream.Count; i++)
+            byte[] bufferMessage = new byte[bufferLength + 1]; //Create message byte[] from message size obtained.
+            for (int i = 0; i < leftStream.Count; i++) //Iterate over length of audio channel stream.
             {
-                if (bufferIndex < bufferLength && i % 8 > 7 - diff && i % 8 <= 7)
+                if (bufferIndex < bufferLength && i % 8 > 7 - storageBlock && i % 8 <= 7) //Condition to target elements from the last position of every 8 bit block of audio stream (calculated based on storageBlock).
                 {
+                    /*Get message bits from left and right channel streams and store in message byte[]*/
                     bufferMessage[bufferIndex++] = (byte)leftStream[i];
                     bufferMessage[bufferIndex++] = (byte)rightStream[i];
                 }
             }
 
-            return System.Text.Encoding.UTF8.GetString(bufferMessage);
+            return System.Text.Encoding.UTF8.GetString(bufferMessage); //Convert message byte[] into string and return.
         }
     }
 }
