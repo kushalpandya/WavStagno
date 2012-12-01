@@ -40,14 +40,14 @@ namespace WavStagno
             short tempBit;
             int bufferIndex = 0, bufferLength = bufferMessage.Length, channelLength, diff;
             channelLength = leftStream.Count;
-            diff = bufferLength / (channelLength * 2);
+            diff = (int) Math.Ceiling((double) bufferLength / (channelLength * 2));
             leftStream[0] = (short) (bufferLength / 65535);
             rightStream[0] = (short) (bufferLength % 65535);
             for (int i = 1; i < leftStream.Count; i++)
             {
                 if (i < leftStream.Count)
                 {
-                    if (bufferIndex < bufferLength && i % 8 >= 7 - diff && i % 8 <= 7)
+                    if (bufferIndex < bufferLength && i % 8 > 7 - diff && i % 8 <= 7)
                     {
                         tempBit = (short)bufferMessage[bufferIndex++];
                         leftStream.Insert(i, tempBit);
@@ -55,7 +55,7 @@ namespace WavStagno
                 }
                 if (i < rightStream.Count)
                 {
-                    if (bufferIndex < bufferLength && i % 8 >= 7 - diff && i % 8 <= 7)
+                    if (bufferIndex < bufferLength && i % 8 > 7 - diff && i % 8 <= 7)
                     {
                         tempBit = (short)bufferMessage[bufferIndex++];
                         rightStream.Insert(i, tempBit);
@@ -78,17 +78,14 @@ namespace WavStagno
             //Extract Message from Streams and Return it.
             int bufferIndex = 0, bufferLength = leftStream[0], channelLength = rightStream[0], diff;
             
-            bufferLength = 65536 * bufferLength + channelLength;
-            leftStream.Add((short)bufferLength);
-            rightStream.Add((short)channelLength);
-
+            bufferLength = 65535 * bufferLength + channelLength;
             channelLength = leftStream.Count;
-            diff = bufferLength / (channelLength * 2);
+            diff = (int)Math.Ceiling((double)bufferLength / (channelLength * 2));
 
             byte[] bufferMessage = new byte[bufferLength + 1];
             for (int i = 0; i < leftStream.Count; i++)
             {
-                if (bufferIndex < bufferLength && i % 8 >= 7 - diff && i % 8 <= 7)
+                if (bufferIndex < bufferLength && i % 8 > 7 - diff && i % 8 <= 7)
                 {
                     bufferMessage[bufferIndex++] = (byte)leftStream[i];
                     bufferMessage[bufferIndex++] = (byte)rightStream[i];
