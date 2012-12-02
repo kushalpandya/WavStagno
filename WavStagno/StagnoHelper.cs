@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Runtime.Serialization;
 using WavStagno.Media;
 
 /// <summary>
@@ -10,6 +11,31 @@ using WavStagno.Media;
 /// </summary>
 namespace WavStagno
 {
+    /// <summary>
+    /// Exception class, thrown when Message length exceeds audio channel stream length.
+    /// </summary>
+    [Serializable]
+    public class MessageSizeExceededException : Exception
+    {
+        public MessageSizeExceededException()
+            : base() { }
+
+        public MessageSizeExceededException(string message)
+            : base() { }
+
+        public MessageSizeExceededException(string format, params object[] args)
+            : base(string.Format(format, args)) { }
+
+        public MessageSizeExceededException(string message, Exception innerException)
+            : base(message, innerException) { }
+
+        public MessageSizeExceededException(string format, Exception innerException, params object[] args)
+            : base(string.Format(format, args), innerException) { }
+
+        protected MessageSizeExceededException(SerializationInfo info, StreamingContext context)
+            : base(info, context) { }
+    }
+
     /// <summary>
     /// Stagnography helper class for Hiding and Extracting message in WaveAudio object.
     /// </summary>
@@ -44,9 +70,12 @@ namespace WavStagno
             int channelLength = leftStream.Count; //Get length of audio stream (both left and right streams have same length).
             int storageBlock = (int) Math.Ceiling((double) bufferLength / (channelLength * 2)); //Get storage block range based of length of audio channel stream and message stream.
 
+            if (bufferLength > channelLength) //Check if message stream length is greater than a channel's audio stream length.
+                throw new MessageSizeExceededException("Message size is too large for target Audio stream."); //Throw an Exception.
+
             /*Store message length info in first elements of left and right streams*/
-            leftStream[0] = (short)(bufferLength / 65535); //Store quotient of actual size in first element of audio stream.
-            rightStream[0] = (short)(bufferLength % 65535); //Store Semainder of actual size in first element of audio stream.
+            leftStream[0] = (short)(bufferLength / 32767); //Store Quotient of actual size in first element of audio stream.
+            rightStream[0] = (short)(bufferLength % 32767); //Store Remainder of actual size in first element of audio stream.
             for (int i = 1; i < leftStream.Count; i++) //Iterate over length of audio channel stream, skip first element since it contains message length, store message bits into left and right audio streams.
             {
                 if (i < leftStream.Count) //Check if storing has not exceeded audio stream length.
@@ -82,20 +111,22 @@ namespace WavStagno
 
             /*Extract Message from Streams and Return it.*/
             int bufferIndex = 0; //Set message stream index counter.
-            int bufferLength = leftStream[0]; //Get stored Quotient to compute message length.
+            int messageLengthQuotient = leftStream[0]; //Get stored Quotient of message length.
+            int messageLengthRemainder = rightStream[0]; //Get stored Remainder of message length.
             int channelLength = leftStream.Count; //Get audio channel length.
             
-            bufferLength = 65535 * bufferLength + channelLength; //Compute original message length from remaider and quotient obtained from audio streams.
+            int bufferLength = 32767 * messageLengthQuotient + messageLengthRemainder; //Compute original message length from remaider and quotient obtained from audio streams.
             int storageBlock = (int)Math.Ceiling((double)bufferLength / (channelLength * 2)); //Get original storage block range used based and audio stream length and message length.
 
-            byte[] bufferMessage = new byte[bufferLength + 1]; //Create message byte[] from message size obtained.
-            for (int i = 0; i < leftStream.Count; i++) //Iterate over length of audio channel stream.
+            byte[] bufferMessage = new byte[bufferLength]; //Create message byte[] from message size obtained.
+            for (int i = 1; i < leftStream.Count; i++) //Iterate over length of audio channel stream.
             {
                 if (bufferIndex < bufferLength && i % 8 > 7 - storageBlock && i % 8 <= 7) //Condition to target elements from the last position of every 8 bit block of audio stream (calculated based on storageBlock).
                 {
                     /*Get message bits from left and right channel streams and store in message byte[]*/
                     bufferMessage[bufferIndex++] = (byte)leftStream[i];
-                    bufferMessage[bufferIndex++] = (byte)rightStream[i];
+                    if(bufferIndex < bufferLength) //Check if bufferIndex has exceeded total length.
+                        bufferMessage[bufferIndex++] = (byte)rightStream[i];
                 }
             }
 
