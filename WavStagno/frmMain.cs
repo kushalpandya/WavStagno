@@ -18,10 +18,12 @@ namespace WavStagno
         private WaveAudio file;
         private StagnoHelper sh;
         private string message;
+        private bool HIDE_ERROR;
 
         public frmMain()
         {
             InitializeComponent();
+            HIDE_ERROR = false;
         }
 
         private void btnBrowse_Click(object sender, EventArgs e)
@@ -81,15 +83,27 @@ namespace WavStagno
 
         private void comWorker_DoWork(object sender, DoWorkEventArgs e)
         {
-            sh.HideMessage(message);
+            try
+            {
+                sh.HideMessage(message);
+            }
+            catch (MessageSizeExceededException ex)
+            {
+                HIDE_ERROR = true;
+            }
         }
 
         private void comWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            btnHide.Enabled = true;
-            btnExtract.Enabled = true;
-            this.Cursor = Cursors.Default;
-            dlgSaveFile.ShowDialog();
+            if (!HIDE_ERROR)
+            {
+                btnHide.Enabled = true;
+                btnExtract.Enabled = true;
+                this.Cursor = Cursors.Default;
+                dlgSaveFile.ShowDialog();
+            }
+            else
+                MessageBox.Show(this, "Message size is too large!", "WavStagno 1.0", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
     }
 }
